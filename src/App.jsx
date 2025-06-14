@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import FavList from './components/FavList';
 import { Cloud, CloudRain, Sun, Search, MapPin, Wind, Droplets, Thermometer } from 'lucide-react';
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [prev,setprev]=useState([]);
   // Add suggestions state
   const suggestions = [
     'London',
@@ -39,7 +40,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetchWeather('London');
+    fetchWeather('New Delhi');
   }, []);
 
   // Filter suggestions as user types
@@ -103,8 +104,10 @@ function App() {
   if (!weather) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4 md:p-8 flex">
+      <div className='flex-1 flex items-center justify-center'>
+        <div className="max-w-5xl m-5 ">
+        {/* Search Form */ }
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="relative">
             <input
@@ -139,13 +142,34 @@ function App() {
             )}
           </div>
         </form>
-
+        {/* Searched location Weather Details */}
         <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div className="mb-6 md:mb-0">
-              <h1 className="text-2xl font-bold text-white mb-2">
-                {weather.location.name}, {weather.location.country}
-              </h1>
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  {weather.location.name}, {weather.location.country}
+                    <button
+                      onClick={() => {
+                        const favs = JSON.parse(localStorage.getItem('favorites')) || [];
+                        if (!favs.includes(weather.location.name)) {
+                          favs.push(weather.location.name);
+                          localStorage.setItem('favorites', JSON.stringify(favs));
+                        }
+                      }}
+                      style={{
+                        marginLeft: '5px',
+                        fontSize: '20px', // Decrease the size
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer'
+                      }}
+                      aria-label="Add to favorites"
+                    >
+                      ❤️
+                    </button>
+                </h2>
+              </div>
               <p className="text-white/70">
                 {new Date(weather.location.localtime).toLocaleDateString('en-US', {
                   weekday: 'long',
@@ -170,7 +194,7 @@ function App() {
             </div>
           </div>
         </div>
-
+        {/* Future weather details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {weather.forecast.forecastday.map((day) => (
             <div
@@ -203,7 +227,7 @@ function App() {
             </div>
           ))}
         </div>
-
+          {/* third row of weather details */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white">
             <Wind className="mb-2" size={24} />
@@ -226,6 +250,10 @@ function App() {
             <p className="text-xl">{weather.current.pressure_mb} mb</p>
           </div>
         </div>
+        </div>
+        <FavList onSelectFavorite={(fav) => {
+          fetchWeatherForLocation(fav.name || fav);
+        }} />
       </div>
     </div>
   );
