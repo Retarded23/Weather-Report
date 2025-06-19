@@ -1,47 +1,11 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import FavList from './components/FavList';
+import { useState } from 'react';
 import { Cloud, CloudRain, Sun, Search, MapPin, Wind, Droplets, Thermometer } from 'lucide-react';
-
+import { useWeather } from './context/WeatherContext';
+import FavList from './components/FavList';
 function App() {
-  const [weather, setWeather] = useState(null);
+  const { weatherData, loading, error, searchLocation } = useWeather();
   const [location, setLocation] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [prev,setprev]=useState([]);
-  // Add suggestions state
-  const suggestions = [
-    'London',
-    'New York',
-    'Tokyo',
-    'Paris',
-    'Sydney',
-    'Mumbai',
-    'Toronto',
-    'Berlin',
-    'Moscow',
-    'Beijing'
-  ];
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const fetchWeather = async (searchLocation) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${import.meta.env.VITE_WEATHER_API_KEY}&q=${searchLocation}&days=3&aqi=yes`);
-      setWeather(response.data);
-    } catch (err) {
-      setError('Failed to fetch weather data');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchWeather('New Delhi');
-  }, []);
 
   // Filter suggestions as user types
   const handleLocationChange = (e) => {
@@ -67,10 +31,15 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (location.trim()) {
-      fetchWeather(location);
+      searchLocation(location);
       setLocation('');
       setShowSuggestions(false);
     }
+  };
+
+  // This function will be called when a favorite is selected
+  const handleSelectFavorite = (fav) => {
+    searchLocation(fav.name ? fav.name : fav);
   };
 
   if (loading) {
@@ -91,7 +60,7 @@ function App() {
           <CloudRain className="mx-auto mb-4" size={48} />
           <p className="text-xl mb-4">{error}</p>
           <button
-            onClick={() => fetchWeather('London')}
+            onClick={() => searchLocation('London')}
             className="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
           >
             Try Again
@@ -101,11 +70,11 @@ function App() {
     );
   }
 
-  if (!weather) return null;
+  if (!weatherData) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4 md:p-8 flex">
-      <div className='flex-1 flex items-center justify-center'>
+      <div className='flex-1 flex flex-wrap items-center justify-center'>
         <div className="max-w-5xl m-5 ">
         {/* Search Form */ }
         <form onSubmit={handleSubmit} className="mb-8">
@@ -148,12 +117,12 @@ function App() {
             <div className="mb-6 md:mb-0">
               <div>
                 <h2 className="text-2xl font-bold text-white mb-2">
-                  {weather.location.name}, {weather.location.country}
+                  {weatherData.location.name}, {weatherData.location.country}
                     <button
                       onClick={() => {
                         const favs = JSON.parse(localStorage.getItem('favorites')) || [];
-                        if (!favs.includes(weather.location.name)) {
-                          favs.push(weather.location.name);
+                        if (!favs.includes(weatherData.location.name)) {
+                          favs.push(weatherData.location.name);
                           localStorage.setItem('favorites', JSON.stringify(favs));
                         }
                       }}
@@ -171,7 +140,7 @@ function App() {
                 </h2>
               </div>
               <p className="text-white/70">
-                {new Date(weather.location.localtime).toLocaleDateString('en-US', {
+                {new Date(weatherData.location.localtime).toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -180,23 +149,23 @@ function App() {
               </p>
             </div>
             <div className="flex items-center">
-              {weather.current.is_day ? (
+              {weatherData.current.is_day ? (
                 <Sun className="text-yellow-300\" size={48} />
               ) : (
                 <Cloud className="text-blue-200" size={48} />
               )}
               <div className="ml-4">
                 <p className="text-5xl font-light text-white">
-                  {Math.round(weather.current.temp_c)}°C
+                  {Math.round(weatherData.current.temp_c)}°C
                 </p>
-                <p className="text-white/70">Feels like {Math.round(weather.current.feelslike_c)}°C</p>
+                <p className="text-white/70">Feels like {Math.round(weatherData.current.feelslike_c)}°C</p>
               </div>
             </div>
           </div>
         </div>
         {/* Future weather details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {weather.forecast.forecastday.map((day) => (
+          {weatherData.forecast.forecastday.map((day) => (
             <div
               key={day.date}
               className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white"
@@ -232,28 +201,26 @@ function App() {
           <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white">
             <Wind className="mb-2" size={24} />
             <p className="text-sm text-white/70">Wind Speed</p>
-            <p className="text-xl">{weather.current.wind_kph} km/h</p>
+            <p className="text-xl">{weatherData.current.wind_kph} km/h</p>
           </div>
           <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white">
             <Droplets className="mb-2" size={24} />
             <p className="text-sm text-white/70">Humidity</p>
-            <p className="text-xl">{weather.current.humidity}%</p>
+            <p className="text-xl">{weatherData.current.humidity}%</p>
           </div>
           <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white">
             <Sun className="mb-2" size={24} />
             <p className="text-sm text-white/70">UV Index</p>
-            <p className="text-xl">{weather.current.uv}</p>
+            <p className="text-xl">{weatherData.current.uv}</p>
           </div>
           <div className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-white">
             <Thermometer className="mb-2" size={24} />
             <p className="text-sm text-white/70">Pressure</p>
-            <p className="text-xl">{weather.current.pressure_mb} mb</p>
+            <p className="text-xl">{weatherData.current.pressure_mb} mb</p>
           </div>
         </div>
         </div>
-        <FavList onSelectFavorite={(fav) => {
-          fetchWeatherForLocation(fav.name || fav);
-        }} />
+        <FavList onSelectFavorite={handleSelectFavorite} />
       </div>
     </div>
   );
