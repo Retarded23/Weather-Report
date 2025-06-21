@@ -1,12 +1,39 @@
-# React + Vite
+# 🌤️ Weather Report App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and clean weather forecast application that displays real-time weather data for any location using OpenWeatherMap API.
 
-Currently, two official plugins are available:
+🔗 **Live Demo**: [weather-report-taupe.vercel.app](https://weather-report-taupe.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🌍 Search weather by city name
+- 🌡️ Displays temperature, humidity, and wind speed
+- ⛅ Shows current weather condition (e.g., Clear, Rainy, etc.)
+- 🕒 Shows current time of the location
+- 📱 Fully responsive UI for mobile and desktop
+- 🔁 Realtime weather data fetched from OpenWeatherMap API
+- 💖 Add your Favourate Location
+
+---
+
+
+
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend**: HTML, CSS, JavaScript
+- **Storage**: Local Storage
+- **API**: [OpenWeatherMap](https://openweathermap.org/api)
+- **Deployment**: Vercel
+
+---
+
+## 🔧 Setup Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/weather-report.git
+   cd weather-report
