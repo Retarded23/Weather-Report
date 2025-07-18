@@ -103,7 +103,7 @@ function WaterReport() {
             <div
               key={index}
               className={` p-4 rounded-md shadow-sm ${
-                param.error ? 'bg-red-50 border-red-300' : "p-3 rounded-md bg-white/50"
+                param.error ? 'bg-gradient-to-br from-indigo-500/40 via-purple-500/40 to-red-900/40 rounded-2xl shadow-xl border border-white/40' : "bg-gradient-to-br from-indigo-500/20 via-purple-500/80 to-pink-900/30 rounded-2xl shadow-xl border border-white/40"
               }`}
             >
               <div className="flex items-center space-x-2 mb-2">
