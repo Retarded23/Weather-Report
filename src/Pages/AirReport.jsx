@@ -101,7 +101,8 @@ function AirReport() {
   });
 
   return (
-    <div className="w-auto mx-10 my-8 px-4 p-6 rounded-xl shadow-lg backdrop-blur-md">
+    <div>
+      <div className="w-auto bg-white/40 border-white mx-10 my-8 p-6 rounded-xl shadow-lg backdrop-blur-md">
       <h1 className="text-3xl font-bold mb-4 text-gray-900">Air Quality Index (AQI) Report</h1>
       <div className={`p-4 rounded-lg mb-6 text-white ${currentCategory?.color || 'bg-gray-400'}`}>
         <div className="flex items-center justify-between gap-10">
@@ -232,12 +233,16 @@ function AirReport() {
           </div>
         </div>
       </div>
-      <h2 className="text-xl font-semibold mb-2 text-gray-800">Health Recommendation</h2>
-      <div className="bg-white/50 rounded-lg p-4 mb-6">
+      <h2 className="text-2xl font-semibold mb-4 text-black">Health Recommendation</h2>
+      <div className="bg-white/50 rounded-lg p-4 mb-6 ">
         <p>{currentCategory?.recommendation}</p>
       </div>
-      <h2 className="text-xl font-semibold mb-2 text-gray-800">AQI Categories & Recommendations</h2>
-      <AQICategoryTabs categories={AQICategories} />
+      </div>
+      <div className="w-auto bg-white/40 border-white mx-10 my-8 p-6 rounded-xl shadow-lg backdrop-blur-md">
+        <h2 className="text-2xl font-semibold mb-4 text-black">AQI Categories & Recommendations</h2>
+        <AQICategoryTabs categories={AQICategories} />
+      </div>
+      
     </div>
   );
 }
@@ -255,8 +260,8 @@ function AQICategoryTabs({ categories }) {
             onClick={() => setSelected(cat)}
             className={`px-4 py-2 rounded-lg font-semibold transition-all
               ${selected.level === cat.level
-                ? 'border-2 border-white bg-white/20 text-white'
-                : 'bg-white/10 text-white/80 hover:bg-white/20'}`}
+                ? 'border-2 border-white bg-white/20 text-black'
+                : 'bg-white/10 text-black/80 hover:bg-white/20'}`}
           >
             {cat.level}
           </button>
