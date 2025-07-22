@@ -4,6 +4,7 @@ import AirReport from './Pages/AirReport';
 import { Routes, Route } from 'react-router-dom';
 import Footer from './components/Footer';
 import WaterReport from './Pages/WaterReport';
+import TrafficPage from './Pages/TrafficPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Weather />} />
         <Route path="/air-report" element={<AirReport />} />
         <Route path="/water-quality" element={<WaterReport />} />
+        <Route path="/traffic" element={<TrafficPage />} />
         {/* Add other routes here */}
       </Routes>
       <Footer />

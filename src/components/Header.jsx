@@ -48,11 +48,11 @@ function Header() {
         </nav>
       </div>
       {/* Right: User/Notification/Login */}
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
           Login
-        </button>
-      </div>
+        </button> */}
+      {/* </div> */}
     </header>
   )
 }

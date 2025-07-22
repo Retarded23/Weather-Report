@@ -87,7 +87,23 @@ function AirReport() {
       </div>
     );
   }
-  if (error) return <div className="text-center text-red-500 py-10">{error}</div>;
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center p-4">
+        <div className="text-white text-center">
+          <TbWind className="mx-auto mb-4" size={48} />
+          <p className="text-xl mb-4">{error}</p>
+          <button
+            onClick={() => searchLocation('London')}
+            className="bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
   if (!weather) return null;
 
   // Extract AQI and forecast
