@@ -13,7 +13,7 @@ function Header() {
       {/* Left: Logo */}
       <div className="flex items-center space-x-8">
         <img
-          src="../../logo.png"
+          src="../Assets/logo.png"
           alt="Logo"
           className="h-10 w-10 object-contain"
         />
