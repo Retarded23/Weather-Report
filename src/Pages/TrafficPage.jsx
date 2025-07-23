@@ -1,27 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  fetchTrafficIncidents, 
-  fetchNearbyPois, 
-  fetchFlowSegmentData 
-} from '../services/api';
+import { FaTachometerAlt, FaChargingStation, FaGasPump, FaMapMarkerAlt, FaExclamationTriangle } from 'react-icons/fa';
+import { fetchNearbyPois, fetchFlowSegmentData } from '../services/api';
 
-// A simple helper component for the loading state
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center py-16">
-    <div className="w-16 h-16 border-4 border-blue-600 border-dashed rounded-full animate-spin"></div>
-    <p className="ml-4 text-gray-600">Fetching live data...</p>
+// --- Reusable UI Components ---
+
+// Card component for the frosted glass effect
+const TrafficCard = ({ title, icon, children, className = '' }) => (
+  <div className={`bg-white/20 backdrop-blur-md rounded-xl shadow-lg border border-white/30 flex flex-col p-6 h-full ${className}`}>
+    <div className="flex items-center mb-4">
+      {icon}
+      <h2 className="text-xl font-bold text-white ml-3">{title}</h2>
+    </div>
+    <div className="flex-grow flex flex-col">
+      {children}
+    </div>
   </div>
 );
 
+// List item for stations
+const StationItem = ({ name, address }) => (
+  <div className="flex items-start py-3 border-b border-white/30 last:border-b-0">
+    <FaMapMarkerAlt className="text-white/80 mt-1 mr-4 flex-shrink-0" />
+    <div>
+      <p className="font-semibold text-white">{name}</p>
+      <p className="text-sm text-gray-200">{address}</p>
+    </div>
+  </div>
+);
+
+// Full-screen loading indicator
+const LoadingState = () => (
+  <div className="min-h-screen w-full bg-gradient-to-br from-purple-600 to-indigo-700 flex justify-center items-center text-white">
+    <div className="text-center">
+      <svg className="animate-spin h-8 w-8 text-white mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p className="text-xl font-semibold">Fetching Live Data...</p>
+    </div>
+  </div>
+);
+
+// --- Main Traffic Page Component ---
+
 const TrafficPage = () => {
   const [location, setLocation] = useState(null);
-  // const [incidents, setIncidents] = useState([]);
   const [evStations, setEvStations] = useState([]);
   const [petrolPumps, setPetrolPumps] = useState([]);
   const [flowData, setFlowData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Logic to get user location (unchanged)
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -32,30 +62,23 @@ const TrafficPage = () => {
         setError('');
       },
       (err) => {
-        setError(`Error getting your location: ${err.message}. Please enable location services in your browser.`);
+        setError(`Location Error: ${err.message}. Please enable location services.`);
         setLoading(false);
       }
     );
   }, []);
 
+  // Logic to fetch data based on location (unchanged)
   useEffect(() => {
     if (location) {
       const fetchData = async () => {
         try {
           setLoading(true);
-          const [
-            // incidentsData, 
-            evData, 
-            petrolData, 
-            flowSegment
-          ] = await Promise.all([
-            // fetchTrafficIncidents(location.lat, location.lon),
-            fetchNearbyPois(location.lat, location.lon, 'electric_vehicle_station'),
-            fetchNearbyPois(location.lat, location.lon, 'petrol_station'),
+          const [evData, petrolData, flowSegment] = await Promise.all([
+            fetchNearbyPois(location.lat, location.lon, 'electric_vehicle_station'), // EV Station ID
+            fetchNearbyPois(location.lat, location.lon, 'petrol_station'), // Petrol/Gas Station ID
             fetchFlowSegmentData(location.lat, location.lon),
           ]);
-
-          // setIncidents(incidentsData?.incidents || []);
           setEvStations(evData?.results || []);
           setPetrolPumps(petrolData?.results || []);
           setFlowData(flowSegment);
@@ -65,110 +88,78 @@ const TrafficPage = () => {
           setLoading(false);
         }
       };
-
       fetchData();
     }
   }, [location]);
 
+  // --- Render Logic ---
+
+  if (loading) {
+    return <LoadingState />;
+  }
+  
   return (
-    <div className="min-h-screen bg-gray-100 font-sans p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen w-full bg-gradient-to-br from-purple-600 via-blue-500 to-indigo-700 text-white p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-tight">
-            Live Traffic Dashboard
-          </h1>
-          <p className="text-lg text-gray-600 mt-2">
-            Real-time traffic and service updates for your area.
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold">Live Traffic Dashboard</h1>
+          <p className="text-gray-200 mt-2">Real-time traffic and service updates for your area.</p>
         </header>
 
-        {loading && <LoadingSpinner />}
-
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 rounded-md shadow-md" role="alert">
-            <p className="font-bold">An Error Occurred</p>
-            <p>{error}</p>
+          <div className="bg-red-500/30 backdrop-blur-md border border-red-400/50 text-white p-4 rounded-xl shadow-lg mb-8 max-w-3xl mx-auto">
+             <div className="flex items-center">
+               <FaExclamationTriangle className="text-red-300 h-6 w-6 mr-3" />
+               <div>
+                  <p className="font-bold">An Error Occurred</p>
+                  <p className="text-red-200">{error}</p>
+               </div>
+             </div>
           </div>
         )}
 
-        {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-
-            {/* Current Road Speed */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Current Road Speed</h2>
+        {!error && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <TrafficCard title="Current Road Speed" icon={<FaTachometerAlt size={24} />}>
               {flowData ? (
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Current Speed</p>
-                    <p className="text-4xl font-bold text-blue-600">{flowData.currentSpeed} km/h</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Free Flow Speed</p>
-                    <p className="text-xl text-gray-700">{flowData.freeFlowSpeed} km/h</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Time to Cross Segment</p>
-                    <p className="text-xl text-gray-700">{Math.round(flowData.currentTravelTime)} seconds</p>
+                <div className="text-center flex flex-col justify-center h-full">
+                  <p className="text-6xl md:text-7xl font-bold text-yellow-300">
+                    {flowData.currentSpeed}
+                    <span className="text-2xl font-medium text-white/90 ml-2">km/h</span>
+                  </p>
+                  <div className="mt-6 grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <p className="text-lg font-semibold">{flowData.freeFlowSpeed} km/h</p>
+                      <p className="text-sm text-gray-200">Free Flow</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">{Math.floor(flowData.currentTravelTime / 60)}m {flowData.currentTravelTime % 60}s</p>
+                      <p className="text-sm text-gray-200">Travel Time</p>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <p className="text-gray-500">No road speed data available for this specific location.</p>
-              )}
-            </div>
+              ) : <p className="text-center m-auto text-gray-300">No speed data available.</p>}
+            </TrafficCard>
 
-            {/* Traffic Incidents */}
-            {/* <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Traffic Incidents</h2>
-              {incidents.length > 0 ? (
-                <ul className="space-y-4">
-                  {incidents.slice(0, 5).map((incident, index) => (
-                    <li key={index} className="border-b border-gray-200 pb-2 last:border-b-0">
-                      <p className="font-bold text-red-600">{incident.type || "Unknown Type"}</p>
-                      <p className="text-sm text-gray-600">
-                        Category: {incident.properties?.iconCategory ?? "N/A"}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No incidents reported nearby.</p>
-              )}
-            </div> */}
-
-            {/* EV Charging Stations */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">EV Charging</h2>
+            <TrafficCard title="EV Charging Stations" icon={<FaChargingStation size={24} />}>
               {evStations.length > 0 ? (
-                <ul className="space-y-3">
-                  {evStations.slice(0, 5).map((station) => (
-                    <li key={station.id} className="border-b border-gray-200 pb-2 last:border-b-0">
-                      <p className="font-bold text-green-700">{station.poi.name}</p>
-                      <p className="text-sm text-gray-600">{station.address.freeformAddress}</p>
-                    </li>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                  {evStations.slice(0, 5).map(station => (
+                    <StationItem key={station.id} name={station.poi.name} address={station.address.freeformAddress} />
                   ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No EV stations found nearby.</p>
-              )}
-            </div>
+                </div>
+              ) : <p className="text-center m-auto text-gray-300">No EV stations found nearby.</p>}
+            </TrafficCard>
 
-            {/* Petrol Pumps */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Petrol Pumps</h2>
+            <TrafficCard title="Petrol Pumps" icon={<FaGasPump size={24} />}>
               {petrolPumps.length > 0 ? (
-                <ul className="space-y-3">
-                  {petrolPumps.slice(0, 5).map((pump) => (
-                    <li key={pump.id} className="border-b border-gray-200 pb-2 last:border-b-0">
-                      <p className="font-bold text-indigo-700">{pump.poi.name}</p>
-                      <p className="text-sm text-gray-600">{pump.address.freeformAddress}</p>
-                    </li>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                  {petrolPumps.slice(0, 5).map(pump => (
+                    <StationItem key={pump.id} name={pump.poi.name} address={pump.address.freeformAddress} />
                   ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No petrol pumps found nearby.</p>
-              )}
-            </div>
+                </div>
+              ) : <p className="text-center m-auto text-gray-300">No petrol pumps found nearby.</p>}
+            </TrafficCard>
           </div>
         )}
       </div>
@@ -177,3 +168,4 @@ const TrafficPage = () => {
 };
 
 export default TrafficPage;
+

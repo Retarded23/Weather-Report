@@ -123,7 +123,7 @@ function AirReport() {
       <div className={`p-4 rounded-lg mb-6 text-white ${currentCategory?.color || 'bg-gray-400'}`}>
         <div className="flex items-center justify-between gap-10">
           <div>
-            <p className="text-xl text-black font-semibold">Current PM25 AQI: <span className="text-2xl">{aqi.toFixed(0)}</span></p>
+            <p className="text-xl text-black font-semibold">Current PM2.5 AQI: <span className="text-2xl">{aqi.toFixed(0)}</span></p>
             <p className="text-lg text-black">{currentCategory?.level}</p>
           </div>
           
