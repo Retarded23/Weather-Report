@@ -1,6 +1,11 @@
 import axios from 'axios';
 
+
+const TOMTOM_API_KEY = import.meta.env.VITE_TOMTOM_API_KEY;
+const BASE_URL1 = 'https://api.tomtom.com';
+
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+
 const BASE_URL = 'https://api.weatherapi.com/v1';
  
 
@@ -53,35 +58,31 @@ export const fetchWaterQualityData = async () => {
   };
 };
 
-const TOMTOM_API_KEY = import.meta.env.VITE_TOMTOM_API_KEY;
-const BASE_URL1 = 'https://api.tomtom.com';
+const fields =
+  'incidents{type,geometry{type,coordinates},properties{id,iconCategory,magnitudeOfDelay,events{description,code,iconCategory},startTime,endTime,from,to,length,delay,roadNumbers,timeValidity,probabilityOfOccurrence,numberOfReports,lastReportTime,tmc{countryCode,tableNumber,tableVersion,direction,points{location,offset}}}}';
 
-/**
- * Fetches traffic incidents near a specific geographic coordinate.
- */
+console.log(fields);
+
 export const fetchTrafficIncidents = async (lat, lon) => {
-  const boundingBox = `${lat - 0.1},${lon - 0.1},${lat + 0.1},${lon + 0.1}`;
+  const bbox = `${lon - 0.1},${lat - 0.1},${lon + 0.1},${lat + 0.1}`;
   try {
-    const response = await axios.get(
-      `${BASE_URL1}/traffic/services/4/incidentDetails/s3/${boundingBox}/-11/132/2/-1/json`, {
-        params: {
-          key: TOMTOM_API_KEY,
-          projection: 'EPSG4326',
-          language: 'en-US',
-        },
-      }
-    );
+    const response = await axios.get(`${BASE_URL1}/traffic/services/5/incidentDetails`, {
+      params: {
+        key: TOMTOM_API_KEY,
+        bbox: bbox,
+        language: 'en-GB',
+        fields,
+        timeValidityFilter: 'present',
+      },
+    });
     return response.data;
   } catch (error) {
-    console.error('Error fetching traffic incidents:', error);
-    // Re-throw the error so the calling component can handle it
+    console.error('Error fetching traffic incidents:', error.response?.data || error.message);
     throw new Error('Failed to fetch traffic incidents.');
   }
 };
 
-/**
- * Fetches nearby points of interest (POIs).
- */
+
 export const fetchNearbyPois = async (lat, lon, category) => {
   try {
     const response = await axios.get(
@@ -102,9 +103,6 @@ export const fetchNearbyPois = async (lat, lon, category) => {
   }
 };
 
-/**
- * Fetches real-time speed and travel time for the road segment.
- */
 export const fetchFlowSegmentData = async (lat, lon) => {
   try {
     const response = await axios.get(

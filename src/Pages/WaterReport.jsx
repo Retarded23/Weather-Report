@@ -86,7 +86,7 @@ function WaterReport() {
           </div>
         </div>
       )}
-    <div className=" w-auto bg-white/40 border-b border-white/30 mx-10 my-8 px-4 p-6 rounded-xl shadow-lg backdrop-blur-md  ">
+    <div className=" w-auto bg-white/40 border-black border-white/30 mx-10 my-8 p-6 rounded-xl shadow-lg backdrop-blur-md  ">
      
       <h2 className="text-3xl font-bold mb-4 text-gray-900">Water Quality Report</h2>
       <p className="text-xl text-black-500 mb-4">
@@ -127,7 +127,7 @@ function WaterReport() {
     </div>
 
       {/* Water Safety Information Section */}
-      <div className="w-auto bg-white/40 border-b border-white/30 mx-10 my-8 px-4 p-6 rounded-xl shadow-lg backdrop-blur-md">
+    <div className="w-auto bg-white/40 border-b border-white/30 mx-10 my-8  p-6 rounded-xl shadow-lg backdrop-blur-md">
         <strong className=" text-black mb-4 ">Water Safety Information</strong>
         <p className="text-sm text-black mb-4">
           Understanding water quality parameters and health impacts
@@ -170,7 +170,7 @@ function WaterReport() {
           </button>
         </div>
 
-      </div>
+    </div>
 
     </div>
   );
